@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursuri</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Lista Cursurilor</h1>
+
+        <!-- Butonul pentru a adăuga un curs nou -->
+        <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addCourseModal">Adaugă Curs</button>
+
+        <!-- Tabel cu lista de cursuri -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nume Curs</th>
+                    <th>Descriere</th>
+                    <th>Instructor</th>
+                    <th>Preț</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% courses.forEach(course => { %>
+                    <tr>
+                        <td><%= course.course_id %></td>
+                        <td><%= course.course_name %></td>
+                        <td><%= course.description %></td>
+                        <td><%= course.instructor_id %></td>
+                        <td><%= course.price %></td>
+                        <td>
+                            <button class="btn btn-primary edit-btn" 
+                                    data-id="<%= course.course_id %>" 
+                                    data-name="<%= course.course_name %>" 
+                                    data-description="<%= course.description %>" 
+                                    data-instructor="<%= course.instructor_id %>" 
+                                    data-price="<%= course.price %>" 
+                                    data-toggle="modal" 
+                                    data-target="#editCourseModal">Editează</button>
+                            <form action="/courses/delete/<%= course.course_id %>" method="POST" style="display:inline;">
+                                <button class="btn btn-danger" type="submit">Șterge</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <!-- Modal pentru adăugarea unui curs -->
+        <div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="/courses/add" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addCourseModalLabel">Adaugă Curs</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Închide">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="course_name">Nume Curs</label>
+                                <input type="text" class="form-control" id="course_name" name="course_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Descriere</label>
+                                <textarea class="form-control" id="description" name="description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="instructor_id">Instructor ID</label>
+                                <input type="number" class="form-control" id="instructor_id" name="instructor_id">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Preț</label>
+                                <input type="number" step="0.01" class="form-control" id="price" name="price">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anulează</button>
+                            <button type="submit" class="btn btn-success">Adaugă</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal pentru editarea unui curs -->
+        <div class="modal fade" id="editCourseModal" tabindex="-1" role="dialog" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="/courses/edit" method="POST" id="editCourseForm">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editCourseModalLabel">Editează Curs</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Închide">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="edit_course_id" name="course_id">
+                            <div class="form-group">
+                                <label for="edit_course_name">Nume Curs</label>
+                                <input type="text" class="form-control" id="edit_course_name" name="course_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_description">Descriere</label>
+                                <textarea class="form-control" id="edit_description" name="description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_instructor_id">Instructor ID</label>
+                                <input type="number" class="form-control" id="edit_instructor_id" name="instructor_id">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_price">Preț</label>
+                                <input type="number" step="0.01" class="form-control" id="edit_price" name="price">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anulează</button>
+                            <button type="submit" class="btn btn-primary">Salvează Modificările</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Populează modalul de editare cu datele cursului
+        $('.edit-btn').on('click', function() {
+            const courseId = $(this).data('id');
+            const courseName = $(this).data('name');
+            const description = $(this).data('description');
+            const instructorId = $(this).data('instructor');
+            const price = $(this).data('price');
+
+            $('#edit_course_id').val(courseId);
+            $('#edit_course_name').val(courseName);
+            $('#edit_description').val(description);
+            $('#edit_instructor_id').val(instructorId);
+            $('#edit_price').val(price);
+
+            $('#editCourseForm').attr('action', `/courses/edit/${courseId}`);
+        });
+    </script>
+</body>
+</html>

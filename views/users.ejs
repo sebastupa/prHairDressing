@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilizatori</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Lista utilizatorilor</h1>
+
+        <!-- Buton pentru adăugare utilizator -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Adaugă utilizator</button>
+
+        <!-- Tabel utilizatori -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nume</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                    <tr>
+                        <td><%= user.user_id %></td>
+                        <td><%= user.first_name %> <%= user.last_name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.role %></td>
+                        <td>
+                            <button class="btn btn-primary edit-btn" data-id="<%= user.user_id %>" data-bs-toggle="modal" data-bs-target="#editUserModal">
+                                Editează
+                            </button>
+                            <button class="btn btn-info details-btn" data-id="<%= user.user_id %>" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                                Detalii
+                            </button>
+                            <form action="/users/delete/<%= user.user_id %>" method="POST" style="display:inline;">
+                                <button class="btn btn-danger" type="submit" onclick="return confirm('Sigur vrei să ștergi acest utilizator?')">Șterge</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <!-- Modal: Adaugă utilizator -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">Adăugare utilizator</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addUserForm" action="/users/add" method="POST">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">Prenume</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Nume</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Parolă</label>
+                                <input type="password" class="form-control" id="password" name="password_hash" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Rol</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="student">Student</option>
+                                    <option value="instructor">Instructor</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success">Adaugă</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Detalii utilizator -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalLabel">Detalii utilizator</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Prenume:</strong> <span id="details-first-name"></span></p>
+                        <p><strong>Nume:</strong> <span id="details-last-name"></span></p>
+                        <p><strong>Email:</strong> <span id="details-email"></span></p>
+                        <p><strong>Rol:</strong> <span id="details-role"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Editare utilizator -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Editare utilizator</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm" action="" method="POST">
+                            <input type="hidden" id="editUserId" name="user_id">
+                            <div class="mb-3">
+                                <label for="edit-first-name" class="form-label">Prenume</label>
+                                <input type="text" class="form-control" id="edit-first-name" name="first_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-last-name" class="form-label">Nume</label>
+                                <input type="text" class="form-control" id="edit-last-name" name="last_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="edit-email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-role" class="form-label">Rol</label>
+                                <select class="form-select" id="edit-role" name="role" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="student">Student</option>
+                                    <option value="instructor">Instructor</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Salvează</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/userManagement.js"></script>
+</body>
+</html>
